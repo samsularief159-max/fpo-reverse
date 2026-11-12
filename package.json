@@ -1,0 +1,30 @@
+{
+  "name": "fpo-reverse",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "node test/run-tests.mjs",
+    "build": "node scripts/build.mjs"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/samsularief159-max/fpo-reverse.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/samsularief159-max/fpo-reverse/issues"
+  },
+  "homepage": "https://github.com/samsularief159-max/fpo-reverse#readme",
+  "devDependencies": {
+    "buffer": "^6.0.3",
+    "chart.js": "^4.4.7",
+    "esbuild": "^0.24.2",
+    "events": "^3.3.0",
+    "mdb-reader": "^3.0.0",
+    "stream-browserify": "^3.0.0"
+  },
+  "type": "module"
+}

@@ -1,0 +1,171 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Fleet Productivity Analyzer</title>
+<style>/*__CSS__*/</style>
+<script>window.__BRAND_DEFAULT__ = /*__BRAND__*/null;</script>
+</head>
+<body>
+<header class="app">
+  <div class="brand">
+    <span id="brand-logo"></span>
+    <div class="names">
+      <div class="company" id="brand-company"></div>
+      <div class="product">Fleet Productivity Analyzer</div>
+    </div>
+  </div>
+  <nav class="tabs" id="tabs">
+    <button data-view="dashboard" class="active">Dashboard</button>
+    <button data-view="files">Work Files</button>
+    <button data-view="graphs">Graphs</button>
+    <button data-view="settings">Settings</button>
+  </nav>
+</header>
+
+<main>
+  <!-- DASHBOARD -->
+  <section class="view active" id="view-dashboard">
+    <div class="toolbar">
+      <h2>Fleet summary</h2>
+      <span class="spacer"></span>
+      <label class="small muted">Truck <select id="dash-truck"><option value="">All trucks</option></select></label>
+      <button class="btn" id="dash-export">Export summary CSV</button>
+      <button class="btn" id="dash-print">Print summary</button>
+    </div>
+    <div class="kpis" id="kpis"></div>
+    <div id="dash-table"></div>
+  </section>
+
+  <!-- WORK FILES -->
+  <section class="view" id="view-files">
+    <div class="toolbar">
+      <h2>Work files</h2>
+      <span class="spacer"></span>
+      <label class="btn primary">Import data files…
+        <input type="file" id="file-input" multiple hidden accept=".mdb,.accdb,.csv,.txt,.asc,.prn,.tsv,.json">
+      </label>
+      <button class="btn" id="ws-save">Save workspace</button>
+      <label class="btn">Open workspace…<input type="file" id="ws-open" hidden accept=".json,.fpa.json"></label>
+    </div>
+    <div class="drop" id="drop">
+      Drop files here — old ASA/FPO work databases (<b>.mdb</b>), VIMS databases (<b>.mdb</b>),
+      VIMS / TPMS text exports (<b>.csv .txt .asc .prn</b>) or saved workspaces (<b>.json</b>).
+    </div>
+    <div class="card" style="margin-top:14px">
+      <div id="files-list"></div>
+    </div>
+    <div class="card">
+      <div class="toolbar" style="margin:0 0 8px"><h3>Error log</h3><span class="spacer"></span><button class="btn" id="log-clear">Clear</button></div>
+      <div id="error-log" class="small muted">No errors.</div>
+    </div>
+  </section>
+
+  <!-- GRAPHS -->
+  <section class="view" id="view-graphs">
+    <div class="toolbar">
+      <h2>Graphs</h2>
+      <span class="spacer"></span>
+      <label class="small muted">Cycle <select id="g-cycle"></select></label>
+      <button class="btn" id="g-prev" title="Previous cycle">◀</button>
+      <button class="btn" id="g-next" title="Next cycle">▶</button>
+      <button class="btn primary" id="g-print">Print selected</button>
+    </div>
+    <div class="graphs-layout">
+      <div class="card graph-list">
+        <div class="toolbar" style="margin:0">
+          <button class="link" id="g-all">All available</button> ·
+          <button class="link" id="g-none">None</button> ·
+          <button class="link" id="g-hrci">Road (HRCI)</button>
+        </div>
+        <div id="g-list"></div>
+      </div>
+      <div>
+        <div class="card small" id="g-info" style="margin-bottom:14px"></div>
+        <div class="charts" id="charts"></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- SETTINGS -->
+  <section class="view" id="view-settings">
+    <div class="two-col">
+      <div class="card">
+        <h3 style="margin-bottom:12px">Company branding</h3>
+        <div class="form-grid">
+          <label for="s-company">Company name</label>
+          <input type="text" id="s-company" placeholder="Your company name">
+          <span>Company logo</span>
+          <div>
+            <img id="s-logo-preview" class="logo-preview hidden" alt="Company logo preview">
+            <div class="toolbar" style="margin:8px 0 0">
+              <label class="btn">Upload logo…<input type="file" id="s-logo" hidden accept="image/*"></label>
+              <button class="btn danger" id="s-logo-remove">Remove</button>
+            </div>
+            <div class="small muted">PNG, JPG or SVG. Shown in the header and on every printed report.</div>
+          </div>
+          <label for="s-accent">Brand colour</label>
+          <input type="color" id="s-accent" value="#d38b00">
+          <label for="s-site">Site / mine name</label>
+          <input type="text" id="s-site" placeholder="Optional – printed on reports">
+          <label for="s-footer">Report footer</label>
+          <input type="text" id="s-footer" placeholder="e.g. Confidential – prepared by Fleet Engineering">
+          <label for="s-theme">Theme</label>
+          <select id="s-theme"><option value="">Follow system</option><option value="light">Light</option><option value="dark">Dark</option></select>
+        </div>
+      </div>
+      <div class="card">
+        <h3 style="margin-bottom:12px">Limits &amp; analysis</h3>
+        <div class="form-grid">
+          <label for="s-ref">HRCI measured from</label>
+          <select id="s-ref"><option value="mean">Phase average (dynamic swing)</option><option value="zero">Zero (absolute)</option></select>
+          <label for="s-rack">Rack management limit (kPa)</label><input type="number" id="s-rack" min="0" step="100">
+          <label for="s-pitch">Pitch management limit (kPa)</label><input type="number" id="s-pitch" min="0" step="100">
+          <label for="s-bias">Bias management limit (kPa)</label><input type="number" id="s-bias" min="0" step="100">
+          <label for="s-bt">Max brake temperature (°C)</label><input type="number" id="s-bt" min="0" step="5">
+          <label for="s-bs">Normal brake life limit (km/h/s)</label><input type="number" id="s-bs" min="0" step="0.1">
+          <label for="s-dayfirst">Import dates as</label>
+          <select id="s-dayfirst"><option value="0">mm/dd/yyyy</option><option value="1">dd/mm/yyyy</option></select>
+        </div>
+        <p class="small muted">Set the limits recommended for your truck models and site. Leave a limit blank to hide it.</p>
+        <button class="btn" id="s-reset">Reset limits to defaults</button>
+      </div>
+    </div>
+    <div class="card">
+      <h3>About</h3>
+      <p class="small muted" id="about"></p>
+    </div>
+  </section>
+</main>
+
+<footer class="app" id="app-footer"></footer>
+<div id="print-root"></div>
+
+<dialog id="dlg-map">
+  <div class="dh"><h3 id="map-title">Map columns</h3><div class="small muted" id="map-sub"></div></div>
+  <div class="db">
+    <div class="form-grid" style="margin-bottom:12px">
+      <label for="map-id">Truck / equipment ID</label><input type="text" id="map-id">
+      <label for="map-model">Model</label><input type="text" id="map-model" placeholder="e.g. 793D">
+    </div>
+    <table><thead><tr><th>Field</th><th>Column in file</th><th>First values</th></tr></thead><tbody id="map-rows"></tbody></table>
+  </div>
+  <div class="df"><button class="btn" value="cancel" id="map-cancel">Cancel</button><button class="btn primary" id="map-ok">Import</button></div>
+</dialog>
+
+<dialog id="dlg-vims">
+  <div class="dh"><h3>Import from VIMS database</h3><div class="small muted" id="vims-sub"></div></div>
+  <div class="db">
+    <h3 style="margin-bottom:6px">Data logger downloads</h3>
+    <div class="table-wrap" style="max-height:220px"><table><thead><tr><th></th><th>Equipment</th><th>Model</th><th>Serial</th><th>Download date</th><th>Logger ID</th></tr></thead><tbody id="vims-loggers"></tbody></table></div>
+    <h3 style="margin:14px 0 6px">Channel mapping</h3>
+    <div class="small muted" style="margin-bottom:6px">Check that each logger channel position is assigned to the right measurement. Channel 729 is Payload Status.</div>
+    <div class="table-wrap" style="max-height:260px"><table><thead><tr><th>Position</th><th>Channel</th><th>Description</th><th>Maps to</th></tr></thead><tbody id="vims-channels"></tbody></table></div>
+  </div>
+  <div class="df"><button class="btn" id="vims-cancel">Cancel</button><button class="btn primary" id="vims-ok">Import selected</button></div>
+</dialog>
+
+<script>/*__JS__*/</script>
+</body>
+</html>
